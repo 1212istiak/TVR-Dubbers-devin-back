@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TVR Dubbers — We Believe in Quality</title>
+<meta name="description" content="Battle Through the Heavens, dubbed in Bangla by TVR Dubbers. Watch every episode free, in one place.">
+<meta name="theme-color" content="#0a0a12">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+<!-- Default OG tags for the homepage / when JS hasn't run yet. Per-episode
+     share links get their own server-rendered tags from /share/episode/:id
+     on the backend (see DEPLOYMENT.md). -->
+<meta property="og:title" content="TVR Dubbers — We Believe in Quality">
+<meta property="og:description" content="Battle Through the Heavens, dubbed in Bangla by TVR Dubbers.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Rajdhani:wght@500;600;700&family=Hind+Siliguri:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+<!--
+  ONE line to edit after you deploy the backend to Render:
+  point this at your live API URL. Everything else wires up automatically.
+-->
+<script>
+  window.TVR_CONFIG = {
+    API_BASE: "http://localhost:3000"
+  };
+</script>
+</head>
+<body>
+
+<canvas id="particles-canvas" aria-hidden="true"></canvas>
+<div id="cursor-dot" aria-hidden="true"></div>
+<div id="cursor-ring" aria-hidden="true"></div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <button class="brand" id="brand-click-target" type="button" aria-label="TVR Dubbers home">
+      <span class="site-title color-cycle" id="site-title">TVR Dubbers</span>
+      <span class="site-motto" id="site-motto">We Believe in Quality</span>
+    </button>
+
+    <div class="header-actions">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" id="search-input" placeholder="Search episodes…" aria-label="Search episodes" autocomplete="off">
+        <div id="search-results" class="search-results hidden"></div>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark and light mode">
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-badge">Now Streaming — in Bangla Dub</span>
+      <h1 class="hero-title color-cycle">Battle Through the Heavens</h1>
+      <div class="hero-actions">
+        <button id="watch-now-btn" class="btn btn-primary" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+          Watch Now
+        </button>
+        <button id="upcoming-btn" class="btn btn-secondary" type="button">Upcoming Episode</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="countdown-section" aria-label="Next episode countdown">
+    <div class="glass-card countdown-card">
+      <p class="countdown-label">Next Episode Drops In</p>
+      <div class="countdown-timer" id="countdown-timer">
+        <div class="countdown-unit"><span id="cd-days">00</span><label>Days</label></div>
+        <div class="countdown-unit"><span id="cd-hours">00</span><label>Hours</label></div>
+        <div class="countdown-unit"><span id="cd-mins">00</span><label>Mins</label></div>
+        <div class="countdown-unit"><span id="cd-secs">00</span><label>Secs</label></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="special-section" id="special-section" aria-label="Special episodes">
+    <button class="special-tile glass-card" id="special-tile" type="button" aria-expanded="false">
+      <img id="special-thumb" class="special-tile-img" alt="" loading="lazy">
+      <div class="special-tile-overlay">
+        <h2>Special Episode</h2>
+        <p id="special-label">Season 1 · Special Episodes</p>
+      </div>
+    </button>
+    <div class="special-scroll-row" id="special-scroll-row"></div>
+  </section>
+
+  <section class="episodes-section" aria-label="All episodes">
+    <div class="section-heading-row">
+      <h2 class="section-heading color-cycle">All Episodes</h2>
+      <div class="genre-chips" id="genre-chips"></div>
+    </div>
+    <div class="episodes-grid" id="episodes-grid"></div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-tagline">For the Fans, by The Fans</p>
+    <p class="footer-lead">Team Leader: <strong>Rocky</strong></p>
+
+    <div class="voice-artists-box glass-card">
+      <h3>Voice Artists</h3>
+      <ul id="voice-artists-list" class="voice-artists-list"></ul>
+    </div>
+
+    <div class="social-links" id="social-links"></div>
+
+    <p class="footer-contact">Contact us on Telegram — <a href="#" id="footer-telegram-link">Official Telegram Channel</a></p>
+
+    <p class="footer-site-title color-cycle" id="footer-site-title">TVR Dubbers</p>
+    <p class="footer-copyright">All Rights Reserved © TVR Dubbers</p>
+  </div>
+</footer>
+
+<!-- Special episodes fullscreen view — kept as a body-level sibling (not
+     inside <main>) so its z-index actually competes with the header's,
+     instead of being capped by main's lower stacking-context z-index. -->
+<div class="special-expanded hidden" id="special-expanded">
+  <button class="close-btn" id="special-close" type="button" aria-label="Close special episodes">✕</button>
+  <h2 class="special-expanded-title">Special Episodes</h2>
+  <div class="special-expanded-grid" id="special-expanded-grid"></div>
+</div>
+
+<!-- Video modal -->
+<div class="modal-overlay hidden" id="video-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-content glass-card">
+    <button class="modal-close" id="modal-close" type="button" aria-label="Close player">✕</button>
+
+    <div class="modal-header">
+      <div>
+        <h3 id="modal-title" class="color-cycle"></h3>
+        <p id="modal-episode-meta" class="modal-episode-meta"></p>
+      </div>
+      <div class="server-tabs" role="tablist">
+        <button class="server-tab active" data-server="primary" role="tab" aria-selected="true" type="button">Primary</button>
+        <button class="server-tab" data-server="backup" role="tab" aria-selected="false" type="button">Backup</button>
+      </div>
+    </div>
+
+    <div class="player-wrap">
+      <iframe id="player-iframe" title="Episode player" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>
+    </div>
+
+    <div class="reactions-row" id="reactions-row" aria-label="React to this episode">
+      <button class="reaction-btn" data-reaction="heart" type="button"><span class="reaction-emoji">❤️</span><span class="reaction-count" data-count="heart">0</span></button>
+      <button class="reaction-btn" data-reaction="fire" type="button"><span class="reaction-emoji">🔥</span><span class="reaction-count" data-count="fire">0</span></button>
+      <button class="reaction-btn" data-reaction="laugh" type="button"><span class="reaction-emoji">🤣</span><span class="reaction-count" data-count="laugh">0</span></button>
+      <button class="reaction-btn" data-reaction="cry" type="button"><span class="reaction-emoji">😢</span><span class="reaction-count" data-count="cry">0</span></button>
+    </div>
+
+    <button class="next-episode-btn" id="next-episode-btn" type="button">Next Episode →</button>
+
+    <div class="comments-section">
+      <h4>Comments</h4>
+      <form id="comment-form" class="comment-form">
+        <input id="comment-nickname" placeholder="Nickname (optional)" maxlength="60" autocomplete="off">
+        <textarea id="comment-body" placeholder="Say something about this episode…" maxlength="1000" required></textarea>
+        <button type="submit" class="btn btn-primary btn-small">Post</button>
+      </form>
+      <div id="comments-list" class="comments-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden admin login -->
+<div class="modal-overlay hidden" id="admin-login-modal" role="dialog" aria-modal="true">
+  <div class="modal-content glass-card admin-login-content">
+    <button class="modal-close" id="admin-login-close" type="button" aria-label="Close">✕</button>
+    <h3>Admin Login</h3>
+    <form id="admin-login-form">
+      <input type="password" id="admin-password-input" placeholder="Password" autocomplete="current-password" required>
+      <button type="submit" class="btn btn-primary">Log In</button>
+      <p class="admin-login-error hidden" id="admin-login-error"></p>
+    </form>
+  </div>
+</div>
+
+<!-- Admin panel -->
+<div class="admin-panel hidden" id="admin-panel" aria-label="Admin panel">
+  <div class="admin-panel-inner glass-card">
+    <div class="admin-panel-header">
+      <h2>Admin Panel</h2>
+      <div class="admin-header-actions">
+        <button id="admin-logout-btn" class="btn btn-secondary btn-small" type="button">Log Out</button>
+        <button id="admin-close-btn" class="modal-close" type="button" aria-label="Close admin panel">✕</button>
+      </div>
+    </div>
+
+    <nav class="admin-tabs" id="admin-tabs">
+      <button class="admin-tab active" data-tab="upload" type="button">Upload Episode</button>
+      <button class="admin-tab" data-tab="trailer" type="button">Upload Trailer</button>
+      <button class="admin-tab" data-tab="manage" type="button">Manage Episodes</button>
+      <button class="admin-tab" data-tab="settings" type="button">Site Settings</button>
+      <button class="admin-tab" data-tab="links" type="button">Links</button>
+      <button class="admin-tab" data-tab="artists" type="button">Voice Artists</button>
+      <button class="admin-tab" data-tab="password" type="button">Password</button>
+      <button class="admin-tab" data-tab="comments" type="button">Comments</button>
+    </nav>
+
+    <div class="admin-tab-panels" id="admin-tab-panels">
+      <!-- A. Upload New Episode -->
+      <section class="admin-panel-section" data-panel="upload">
+        <form id="episode-form" class="admin-form">
+          <input type="hidden" id="episode-form-id">
+          <label>Title <input type="text" id="ep-title" required maxlength="200"></label>
+          <div class="admin-form-row">
+            <label>Episode # <input type="number" id="ep-number" required min="1"></label>
+            <label>Season <input type="number" id="ep-season" value="1" min="1"></label>
+          </div>
+          <label>Genre
+            <select id="ep-genre"></select>
+          </label>
+          <label>Thumbnail URL (16:9) <input type="url" id="ep-thumbnail" required placeholder="https://…"></label>
+          <label>Primary Server URL — Dailymotion (URL or embed code) <textarea id="ep-primary" required rows="2" placeholder="https://www.dailymotion.com/video/… or full <iframe> code"></textarea></label>
+          <label>Backup Server URL — Rumble (URL or embed code) <textarea id="ep-backup" rows="2" placeholder="https://rumble.com/embed/… or full <iframe> code"></textarea></label>
+          <label class="checkbox-label"><input type="checkbox" id="ep-special"> Add to Special Episode section</label>
+          <button type="submit" class="btn btn-primary">Save Episode</button>
+          <p class="admin-form-msg" id="episode-form-msg"></p>
+        </form>
+      </section>
+
+      <!-- B. Upload Trailer -->
+      <section class="admin-panel-section hidden" data-panel="trailer">
+        <form id="trailer-form" class="admin-form">
+          <label>Title <input type="text" id="tr-title" required maxlength="200"></label>
+          <label>Genre
+            <select id="tr-genre"></select>
+          </label>
+          <label>Thumbnail URL <input type="url" id="tr-thumbnail" required placeholder="https://…"></label>
+          <label>Dailymotion Embed URL <textarea id="tr-primary" required rows="2"></textarea></label>
+          <label>Rumble Embed URL <textarea id="tr-backup" rows="2"></textarea></label>
+          <button type="submit" class="btn btn-primary">Save Trailer</button>
+          <p class="admin-form-msg" id="trailer-form-msg"></p>
+        </form>
+      </section>
+
+      <!-- C. Edit/Delete Episodes -->
+      <section class="admin-panel-section hidden" data-panel="manage">
+        <div id="admin-episode-list" class="admin-episode-list"></div>
+      </section>
+
+      <!-- D. Site Settings -->
+      <section class="admin-panel-section hidden" data-panel="settings">
+        <form id="settings-form" class="admin-form">
+          <label>Website Title <input type="text" id="set-title" maxlength="100"></label>
+          <label>Motto <input type="text" id="set-motto" maxlength="150"></label>
+          <label>Special Folder Thumbnail URL <input type="url" id="set-special-thumb"></label>
+          <label>Special Folder Label <input type="text" id="set-special-label" maxlength="100"></label>
+          <label>Countdown Target (date &amp; time) <input type="datetime-local" id="set-countdown"></label>
+          <button type="submit" class="btn btn-primary">Save Settings</button>
+          <p class="admin-form-msg" id="settings-form-msg"></p>
+        </form>
+      </section>
+
+      <!-- E. Update Links -->
+      <section class="admin-panel-section hidden" data-panel="links">
+        <form id="links-form" class="admin-form">
+          <label>Facebook <input type="url" id="link-facebook"></label>
+          <label>YouTube <input type="url" id="link-youtube"></label>
+          <label>Telegram <input type="url" id="link-telegram"></label>
+          <label>WhatsApp number <input type="text" id="link-whatsapp" placeholder="e.g. 8801XXXXXXXXX"></label>
+          <label>Instagram <input type="url" id="link-instagram"></label>
+          <label>Dailymotion channel <input type="url" id="link-dailymotion"></label>
+          <label>Rumble channel <input type="url" id="link-rumble"></label>
+          <button type="submit" class="btn btn-primary">Save Links</button>
+          <p class="admin-form-msg" id="links-form-msg"></p>
+        </form>
+      </section>
+
+      <!-- F. Voice Artists -->
+      <section class="admin-panel-section hidden" data-panel="artists">
+        <form id="artist-add-form" class="admin-form admin-form-inline">
+          <input type="text" id="artist-name-input" placeholder="Voice artist name" maxlength="100" required>
+          <button type="submit" class="btn btn-primary btn-small">Add</button>
+        </form>
+        <ul id="admin-artist-list" class="admin-artist-list"></ul>
+      </section>
+
+      <!-- G. Change Admin Password -->
+      <section class="admin-panel-section hidden" data-panel="password">
+        <form id="password-form" class="admin-form">
+          <label>Current Password <input type="password" id="pw-current" required></label>
+          <label>New Password <input type="password" id="pw-new" required minlength="6"></label>
+          <label>Confirm New Password <input type="password" id="pw-confirm" required minlength="6"></label>
+          <button type="submit" class="btn btn-primary">Update Password</button>
+          <p class="admin-form-msg" id="password-form-msg"></p>
+        </form>
+      </section>
+
+      <!-- H. Comment Moderation -->
+      <section class="admin-panel-section hidden" data-panel="comments">
+        <div id="admin-comments-list" class="admin-comments-list"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
