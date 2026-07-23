@@ -1,4 +1,4 @@
-export const API_BASE = (window.TVR_CONFIG && window.TVR_CONFIG.API_BASE) || 'https://tvr-dubbers-claude-app.onrender.com';
+export const API_BASE = (window.TVR_CONFIG && window.TVR_CONFIG.API_BASE) || 'https://tvr-with-manus.onrender.com';
 
 // How many clicks on the site title (within CLICK_WINDOW_MS) reveal the
 // hidden admin login. Matches the existing site's convention.
